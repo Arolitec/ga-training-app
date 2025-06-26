@@ -5,11 +5,16 @@ on:
     - cron: "0 * * * *"
   workflow_dispatch:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref}}
+  cancel-in-progress: true
+
 jobs:
   health_check_success:
     runs-on: ubuntu-latest
     env:
       APP_URL: "https://apps.letexto.com"
+
     steps:
       - name: "Check ${{ env.APP_URL }} status"
         id: "hc_success"
@@ -20,6 +25,7 @@ jobs:
           follow-redirect: true
           retry-delay: 5s
           max-attempts: 3
+
       - name: "Notify"
         if: steps.hc_success.outcome == 'failure'
         uses: dawidd6/action-send-mail@v6
@@ -33,10 +39,12 @@ jobs:
           secure: true
           server_port: 465
           body: "App at ${{ env.APP_URL }} is no more available"
+
   health_check_failure:
     runs-on: ubuntu-latest
     env:
       APP_URL: "https://failure.letexto.com"
+
     steps:
       - name: "Check ${{ env.APP_URL }} status"
         id: "hc_failure"
@@ -47,6 +55,7 @@ jobs:
           follow-redirect: true
           retry-delay: 5s
           max-attempts: 3
+
       - name: "Notify"
         if: steps.hc_failure.outcome == 'failure'
         uses: dawidd6/action-send-mail@v6
