@@ -1,8 +1,8 @@
 name: "Web App monitoring workflow"
 
 on:
-  schedule:
-    - cron: "0 * * * *"
+  # schedule:
+  #   - cron: "0 * * * *"
   workflow_dispatch:
 
 concurrency:
@@ -39,6 +39,9 @@ jobs:
           secure: true
           server_port: 465
           body: "App at ${{ env.APP_URL }} is no more available"
+
+      - name: "Echo variable value"
+        run: "echo ${{ vars.TEST_VARIABLE }}"
 
   health_check_failure:
     runs-on: ubuntu-latest
